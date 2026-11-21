@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Vesuliria · 90 Günlük Command Center</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --surface-soft: #f7f9fd;
+      --ink: #111827;
+      --muted: #667085;
+      --line: #e6eaf1;
+      --nav: #101827;
+      --nav-2: #172235;
+      --accent: #635bff;
+      --accent-soft: #eeedff;
+      --blue: #2085e6;
+      --blue-soft: #eaf4ff;
+      --teal: #099a8c;
+      --teal-soft: #e3f8f4;
+      --orange: #e57b1f;
+      --orange-soft: #fff2e4;
+      --yellow: #b98508;
+      --yellow-soft: #fff8dd;
+      --red: #d14b4b;
+      --red-soft: #fff0f0;
+      --shadow: 0 12px 32px rgba(15, 23, 42, .08);
+      --radius: 18px;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0b1220;
+      --surface: #131d2e;
+      --surface-soft: #182438;
+      --ink: #f4f7fc;
+      --muted: #aeb8ca;
+      --line: #26344a;
+      --nav: #090f1a;
+      --nav-2: #101a2a;
+      --accent: #9b94ff;
+      --accent-soft: #282749;
+      --blue: #67b5ff;
+      --blue-soft: #15314f;
+      --teal: #42cbb9;
+      --teal-soft: #123a38;
+      --orange: #f5a354;
+      --orange-soft: #48301c;
+      --yellow: #f2c94c;
+      --yellow-soft: #433816;
+      --red: #ff8585;
+      --red-soft: #48262c;
+      --shadow: 0 16px 34px rgba(0, 0, 0, .24);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid rgba(99, 91, 255, .35);
+      outline-offset: 2px;
+    }
+    .app { display: grid; grid-template-columns: 255px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 26px 16px 18px;
+      color: #dce5f3;
+      background: linear-gradient(160deg, var(--nav), var(--nav-2));
+    }
+    .brand { display: flex; gap: 11px; align-items: center; padding: 0 9px 25px; color: #fff; }
+    .brand-mark {
+      display: grid; place-items: center;
+      width: 34px; height: 34px; border-radius: 11px;
+      color: #fff; font-weight: 800; letter-spacing: -.07em;
+      background: linear-gradient(135deg, #8178ff, #4f46e5);
+      box-shadow: 0 6px 16px rgba(99, 91, 255, .4);
+    }
+    .brand strong { display: block; font-size: 14px; letter-spacing: .01em; }
+    .brand span { display: block; margin-top: 1px; font-size: 11px; color: #aebbd1; }
+    .eyebrow { margin: 0 0 9px; color: var(--muted); font-size: 11px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+    .sidebar .eyebrow { padding: 0 10px; color: #8e9bb2; }
+    .nav-list { display: grid; gap: 4px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 11px; width: 100%;
+      padding: 10px 11px; border: 0; border-radius: 10px;
+      color: #bfcbdd; background: transparent; text-align: left; font-size: 14px;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+    .nav-item.active { color: #fff; background: rgba(139, 132, 255, .19); box-shadow: inset 2px 0 0 #918bff; }
+    .nav-icon { width: 19px; text-align: center; font-size: 16px; }
+    .sidebar-spacer { flex: 1; }
+    .sidebar-note { margin: 20px 3px 0; padding: 14px; border: 1px solid rgba(255,255,255,.09); border-radius: 13px; background: rgba(255,255,255,.045); }
+    .sidebar-note strong { display: block; color: #fff; font-size: 12px; }
+    .sidebar-note p { margin: 5px 0 0; color: #aebbd1; font-size: 12px; line-height: 1.45; }
+    .main { min-width: 0; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 21px 34px 18px; }
+    .crumb { margin: 0; color: var(--muted); font-size: 13px; }
+    .top-actions { display: flex; gap: 9px; align-items: center; }
+    .icon-button, .outline-button, .primary-button {
+      border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink);
+      min-height: 37px; padding: 7px 11px; font-weight: 650; font-size: 13px;
+    }
+    .icon-button { width: 37px; padding: 0; font-size: 16px; }
+    .outline-button:hover { background: var(--surface-soft); }
+    .primary-button { border-color: var(--accent); color: #fff; background: var(--accent); }
+    .primary-button:hover { filter: brightness(.96); }
+    .mobile-menu { display: none; }
+    .content { max-width: 1380px; margin: 0 auto; padding: 5px 34px 45px; }
+    .view { display: none; animation: appear .18s ease-out; }
+    .view.active { display: block; }
+    @keyframes appear { from { opacity: .5; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .hero {
+      position: relative; overflow: hidden;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 26px;
+      padding: 31px; border-radius: var(--radius); color: #f7f8ff;
+      background:
+        radial-gradient(circle at 88% 10%, rgba(154, 150, 255, .36), transparent 23%),
+        radial-gradient(circle at 65% 80%, rgba(37, 183, 217, .18), transparent 32%),
+        linear-gradient(118deg, #121a31, #202957);
+      box-shadow: 0 14px 32px rgba(22, 29, 67, .18);
+    }
+    .hero::after { content: ""; position: absolute; width: 310px; height: 310px; right: -115px; bottom: -205px; border: 1px solid rgba(255,255,255,.12); border-radius: 50%; box-shadow: 0 0 0 38px rgba(255,255,255,.045), 0 0 0 77px rgba(255,255,255,.035); }
+    .hero-copy { position: relative; z-index: 1; max-width: 680px; }
+    .hero .eyebrow { margin-bottom: 10px; color: #b9c4e3; }
+    h1 { margin: 0; font-size: clamp(27px, 3.1vw, 42px); letter-spacing: -.047em; line-height: 1.08; }
+    .hero-lead { max-width: 590px; margin: 12px 0 0; color: #d1d8ee; font-size: 15px; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 21px; }
+    .hero-tag { padding: 5px 9px; border: 1px solid rgba(255,255,255,.15); border-radius: 100px; color: #dbe2f6; background: rgba(255,255,255,.08); font-size: 11px; font-weight: 700; }
+    .day-control {
+      position: relative; z-index: 1; min-width: 185px; padding: 15px 16px 16px;
+      border: 1px solid rgba(255,255,255,.14); border-radius: 14px; background: rgba(8,13,34,.3); backdrop-filter: blur(5px);
+    }
+    .day-control label { display: block; color: #b9c4e3; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .day-input-line { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .day-input-line input { width: 70px; padding: 0; border: 0; outline: 0; color: #fff; background: transparent; font-size: 30px; font-weight: 760; letter-spacing: -.04em; }
+    .day-input-line span { color: #bac5df; font-size: 13px; }
+    .phase-now { margin-top: 5px; color: #fff; font-size: 12px; font-weight: 700; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 20px 0; }
+    .stat-card, .card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+    .stat-card { min-height: 121px; padding: 18px; }
+    .stat-label { display: flex; justify-content: space-between; gap: 5px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .stat-value { margin: 9px 0 4px; font-size: 31px; font-weight: 760; letter-spacing: -.05em; line-height: 1; }
+    .stat-help { color: var(--muted); font-size: 12px; }
+    .mini-dot { width: 8px; height: 8px; margin-top: 5px; border-radius: 50%; background: var(--accent); }
+    .mini-dot.teal { background: var(--teal); }
+    .mini-dot.orange { background: var(--orange); }
+    .mini-dot.blue { background: var(--blue); }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.28fr) minmax(310px, .72fr); gap: 18px; }
+    .card { padding: 22px; }
+    .card-heading { display: flex; align-items: start; justify-content: space-between; gap: 13px; margin-bottom: 19px; }
+    h2 { margin: 0; font-size: 17px; letter-spacing: -.025em; line-height: 1.2; }
+    .card-heading p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .text-link { padding: 0; border: 0; color: var(--accent); background: transparent; font-weight: 750; font-size: 12px; }
+    .text-link:hover { text-decoration: underline; }
+    .project-list { display: grid; gap: 13px; }
+    .project-row { display: grid; grid-template-columns: 31px minmax(0, 1fr) auto; gap: 11px; align-items: center; }
+    .project-icon { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 9px; font-size: 14px; font-weight: 800; }
+    .project-icon.avt { color: var(--blue); background: var(--blue-soft); }
+    .project-icon.sketch { color: var(--teal); background: var(--teal-soft); }
+    .project-icon.ves { color: var(--orange); background: var(--orange-soft); }
+    .project-icon.overfit { color: var(--yellow); background: var(--yellow-soft); }
+    .project-name-line { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: 750; }
+    .project-name-line span:last-child { color: var(--muted); font-size: 11px; font-weight: 650; }
+    .progress-track { height: 7px; margin-top: 6px; overflow: hidden; border-radius: 20px; background: var(--surface-soft); }
+    .progress-bar { height: 100%; border-radius: inherit; background: var(--project-color, var(--accent)); transition: width .25s ease; }
+    .row-hours { color: var(--muted); font-size: 12px; font-weight: 750; white-space: nowrap; }
+    .phase-strip { display: grid; gap: 11px; }
+    .phase-row { position: relative; display: grid; grid-template-columns: 39px 1fr; gap: 11px; padding: 7px 0; }
+    .phase-row:not(:last-child)::before { content: ""; position: absolute; left: 18px; top: 44px; bottom: -12px; width: 1px; background: var(--line); }
+    .phase-number { display: grid; place-items: center; width: 37px; height: 37px; border: 1px solid var(--line); border-radius: 50%; color: var(--muted); background: var(--surface); font-size: 12px; font-weight: 800; }
+    .phase-row.current .phase-number { border-color: var(--accent); color: #fff; background: var(--accent); }
+    .phase-row strong { display: block; font-size: 13px; }
+    .phase-row p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+    .week-mini { margin-top: 18px; padding-top: 17px; border-top: 1px solid var(--line); }
+    .week-mini-title { display: flex; justify-content: space-between; margin-bottom: 11px; font-size: 12px; font-weight: 780; }
+    .week-dots { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .week-dot { display: grid; place-items: center; height: 42px; border-radius: 9px; color: var(--muted); background: var(--surface-soft); font-size: 11px; font-weight: 750; }
+    .week-dot.today { color: #fff; background: var(--accent); }
+    .week-dot small { display: block; margin-top: 1px; font-size: 9px; font-weight: 600; opacity: .85; }
+    .weekly-focus { margin-top: 18px; padding: 16px; border-radius: 13px; color: var(--ink); background: var(--accent-soft); }
+    .weekly-focus strong { display: block; font-size: 12px; }
+    .weekly-focus p { margin: 4px 0 0; font-size: 12px; line-height: 1.45; }
+
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 8px 0 18px; }
+    .section-heading h1 { font-size: 31px; color: var(--ink); }
+    .section-heading p { max-width: 580px; margin: 7px 0 0; color: var(--muted); }
+    .roadmap { display: grid; gap: 17px; }
+    .phase-card { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+    .phase-head { display: flex; justify-content: space-between; gap: 20px; padding: 21px 23px; background: var(--surface-soft); }
+    .phase-head-left { display: flex; gap: 13px; align-items: flex-start; }
+    .phase-pill { padding: 5px 8px; border-radius: 7px; color: var(--accent); background: var(--accent-soft); font-size: 11px; font-weight: 800; white-space: nowrap; }
+    .phase-head h2 { margin-top: 1px; font-size: 18px; }
+    .phase-head p { max-width: 580px; margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+    .phase-range { padding-top: 3px; color: var(--muted); font-size: 12px; font-weight: 750; white-space: nowrap; }
+    .task-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
+    .task-group { padding: 18px 22px 20px; }
+    .task-group:nth-child(odd) { border-right: 1px solid var(--line); }
+    .task-group:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .task-group-title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 12px; font-weight: 800; }
+    .small-icon { display: grid; place-items: center; width: 21px; height: 21px; border-radius: 7px; background: var(--surface-soft); }
+    .checklist { display: grid; gap: 2px; }
+    .task {
+      display: grid; grid-template-columns: 19px minmax(0, 1fr); gap: 8px; align-items: start;
+      padding: 7px 0; color: var(--ink); font-size: 13px; line-height: 1.35;
+    }
+    .task input { width: 16px; height: 16px; margin: 1px 0 0; accent-color: var(--accent); }
+    .task.done span { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+    .cadence-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 18px; align-items: start; }
+    .allocation { display: grid; gap: 15px; }
+    .allocation-row { display: grid; grid-template-columns: 115px 1fr 38px; gap: 10px; align-items: center; }
+    .allocation-row strong { font-size: 13px; }
+    .allocation-row span { color: var(--muted); font-size: 12px; font-weight: 750; text-align: right; }
+    .allocation-track { height: 10px; overflow: hidden; border-radius: 20px; background: var(--surface-soft); }
+    .allocation-track i { display: block; height: 100%; border-radius: inherit; background: var(--project-color); }
+    .schedule { overflow: hidden; padding: 0; }
+    .schedule-title { padding: 22px 22px 15px; }
+    .schedule table { width: 100%; border-collapse: collapse; }
+    .schedule th { padding: 10px 15px; color: var(--muted); background: var(--surface-soft); font-size: 11px; letter-spacing: .04em; text-align: left; text-transform: uppercase; }
+    .schedule td { padding: 13px 15px; border-top: 1px solid var(--line); vertical-align: middle; font-size: 13px; }
+    .schedule td:first-child { font-weight: 780; white-space: nowrap; }
+    .schedule td:last-child { color: var(--muted); font-size: 12px; }
+    .schedule-chip { display: inline-block; margin: 2px 4px 2px 0; padding: 4px 7px; border-radius: 6px; color: var(--chip-color); background: var(--chip-bg); font-size: 11px; font-weight: 750; white-space: nowrap; }
+    .notes-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; }
+    .notes-area { width: 100%; min-height: 240px; resize: vertical; padding: 14px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: var(--surface-soft); line-height: 1.5; }
+    .notes-area::placeholder { color: var(--muted); }
+    .save-status { margin: 9px 0 0; color: var(--muted); font-size: 12px; }
+    .guardrail-list { display: grid; gap: 11px; margin-top: 4px; }
+    .guardrail { display: flex; gap: 11px; align-items: flex-start; padding: 12px; border-radius: 12px; background: var(--surface-soft); }
+    .guardrail-icon { display: grid; place-items: center; flex: 0 0 26px; width: 26px; height: 26px; border-radius: 8px; color: var(--orange); background: var(--orange-soft); font-size: 14px; }
+    .guardrail strong { display: block; font-size: 12px; }
+    .guardrail p { margin: 2px 0 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .milestone-list { display: grid; gap: 12px; margin-top: 18px; }
+    .milestone { display: flex; gap: 9px; align-items: flex-start; font-size: 12px; }
+    .milestone b { display: grid; place-items: center; flex: 0 0 21px; width: 21px; height: 21px; border-radius: 50%; color: var(--accent); background: var(--accent-soft); font-size: 10px; }
+    .milestone span { color: var(--muted); }
+    .empty-state { padding: 40px 10px; color: var(--muted); text-align: center; }
+    .hidden { display: none !important; }
+    @media (max-width: 1030px) {
+      .app { grid-template-columns: 217px minmax(0, 1fr); }
+      .content, .topbar { padding-right: 23px; padding-left: 23px; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dashboard-grid, .cadence-grid, .notes-layout { grid-template-columns: 1fr; }
+      .task-groups { grid-template-columns: 1fr; }
+      .task-group:nth-child(odd) { border-right: 0; }
+      .task-group:nth-child(n+2) { border-top: 1px solid var(--line); }
+    }
+    @media (max-width: 720px) {
+      .app { display: block; }
+      .sidebar { position: fixed; z-index: 20; left: 0; top: 0; width: min(280px, 82vw); transform: translateX(-103%); transition: transform .2s ease; box-shadow: 18px 0 40px rgba(0,0,0,.2); }
+      .sidebar.open { transform: translateX(0); }
+      .mobile-menu { display: inline-grid; place-items: center; }
+      .topbar { position: sticky; z-index: 10; top: 0; padding: 14px 16px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(10px); }
+      .crumb { display: none; }
+      .content { padding: 4px 16px 30px; }
+      .hero { display: block; padding: 24px 20px; border-radius: 15px; }
+      .hero-lead { font-size: 14px; }
+      .day-control { width: 100%; margin-top: 21px; }
+      .stats { gap: 10px; margin: 14px 0; }
+      .stat-card { min-height: 108px; padding: 14px; border-radius: 14px; }
+      .stat-value { font-size: 26px; }
+      .card, .phase-head, .task-group { padding-right: 16px; padding-left: 16px; }
+      .phase-head { display: block; }
+      .phase-range { margin: 12px 0 0 52px; }
+      .section-heading { display: block; margin-top: 14px; }
+      .section-heading h1 { font-size: 27px; }
+      .allocation-row { grid-template-columns: 92px 1fr 32px; gap: 7px; }
+      .schedule { overflow-x: auto; }
+      .schedule table { min-width: 570px; }
+      .top-actions .outline-button { display: none; }
+    }
+    @media (max-width: 410px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .hero-tags { gap: 6px; }
+      .hero-tag { padding: 4px 7px; }
+      .row-hours { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar" aria-label="Ana menü">
+      <div class="brand">
+        <div class="brand-mark">V</div>
+        <div><strong>VESULIRIA</strong><span>Command Center · 90 Gün</span></div>
+      </div>
+      <p class="eyebrow">Çalışma alanı</p>
+      <nav class="nav-list">
+        <button class="nav-item active" type="button" data-view-target="dashboard"><span class="nav-icon">⌂</span>Genel bakış</button>
+        <button class="nav-item" type="button" data-view-target="roadmap"><span class="nav-icon">◫</span>90 günlük plan</button>
+        <button class="nav-item" type="button" data-view-target="cadence"><span class="nav-icon">◷</span>Haftalık ritim</button>
+        <button class="nav-item" type="button" data-view-target="notes"><span class="nav-icon">✎</span>Notlar ve sınırlar</button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-note">
+        <strong>Temel kural</strong>
+        <p>Yeni girişim yok. Namelith ve diğer yeni fikirler 90 gün boyunca beklemede.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-button mobile-menu" id="menuButton" type="button" aria-label="Menüyü aç">☰</button>
+        <p class="crumb">Vesuliria / Operasyon sistemi / 90 gün</p>
+        <div class="top-actions">
+          <button class="outline-button" id="resetButton" type="button">İlerlemeyi sıfırla</button>
+          <button class="icon-button" id="themeButton" type="button" aria-label="Koyu temayı aç">◐</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="view active" id="dashboard">
+          <div class="hero">
+            <div class="hero-copy">
+              <p class="eyebrow">Odaklı portföy · 17,5 saat/hafta</p>
+              <h1>Az sayıda bahis. Net kanıt. Her hafta ilerleme.</h1>
+              <p class="hero-lead">AVT'nin kurum pilotuna, SketchMind'ın gerçek aile kullanımına ve ödeme isteğine, Vesuliria'nın ürün iletişimine, OverfitLab'in teknik sesine odaklanan 90 günlük çalışma sistemi.</p>
+              <div class="hero-tags">
+                <span class="hero-tag">AVT · 7 saat</span>
+                <span class="hero-tag">SketchMind · 6 saat</span>
+                <span class="hero-tag">Vesuliria · 2 saat</span>
+                <span class="hero-tag">OverfitLab · 2,5 saat</span>
+              </div>
+            </div>
+            <div class="day-control">
+              <label for="planDay">Plan günü</label>
+              <div class="day-input-line"><input id="planDay" type="number" min="1" max="90" value="1" inputmode="numeric"><span>/ 90 gün</span></div>
+              <div class="phase-now" id="phaseNow">Faz 1 · Kanıtı kur</div>
+            </div>
+          </div>
+
+          <div class="stats">
+            <article class="stat-card">
+              <div class="stat-label"><span>Toplam ilerleme</span><i class="mini-dot"></i></div>
+              <div class="stat-value" id="overallProgress">0%</div>
+              <div class="stat-help" id="tasksSummary">0 / 0 görev tamamlandı</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label"><span>Bu haftanın kapasitesi</span><i class="mini-dot blue"></i></div>
+              <div class="stat-value">17,5<span style="font-size:15px;letter-spacing:0">s</span></div>
+              <div class="stat-help">4 ana iş akışına ayrıldı</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label"><span>Aktif bahis</span><i class="mini-dot teal"></i></div>
+              <div class="stat-value">4</div>
+              <div class="stat-help">Yeni girişimler beklemede</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label"><span>Sıradaki kanıt</span><i class="mini-dot orange"></i></div>
+              <div class="stat-value" id="nextPhaseDay">30g</div>
+              <div class="stat-help" id="nextPhaseLabel">Faz 1 kapanışına kadar</div>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="card" aria-labelledby="projectsHeading">
+              <div class="card-heading">
+                <div><h2 id="projectsHeading">Portföy sinyalleri</h2><p>Haftalık saat bütçesi ve görev bazlı ilerleme.</p></div>
+                <button class="text-link" type="button" data-view-target="roadmap">Tüm plan →</button>
+              </div>
+              <div class="project-list" id="projectList"></div>
+            </section>
+            <section class="card" aria-labelledby="phaseHeading">
+              <div class="card-heading">
+                <div><h2 id="phaseHeading">90 günlük yol</h2><p>Her faz sonunda görünür bir karar.</p></div>
+              </div>
+              <div class="phase-strip">
+                <div class="phase-row current" data-phase-row="1"><div class="phase-number">01</div><div><strong>Kanıtı kur</strong><p>Demo, MVP ve ilk kullanıcı/kurum sinyali.</p></div></div>
+                <div class="phase-row" data-phase-row="2"><div class="phase-number">02</div><div><strong>Test et ve daralt</strong><p>Pilot görüşmeleri, aile testleri ve fiyat tepkisi.</p></div></div>
+                <div class="phase-row" data-phase-row="3"><div class="phase-number">03</div><div><strong>Karar ver ve sistemleştir</strong><p>Bir sonraki çeyreğin odağına kanıtla karar ver.</p></div></div>
+              </div>
+              <div class="week-mini">
+                <div class="week-mini-title"><span>Bu haftanın ritmi</span><span>17,5 saat</span></div>
+                <div class="week-dots">
+                  <div class="week-dot">Pzt<small>2s</small></div><div class="week-dot">Sal<small>2s</small></div><div class="week-dot">Çar<small>2s</small></div><div class="week-dot">Per<small>2s</small></div><div class="week-dot">Cum<small>4,5s</small></div><div class="week-dot">Cmt<small>3s</small></div><div class="week-dot today">Paz<small>2s</small></div>
+                </div>
+              </div>
+              <div class="weekly-focus"><strong>Haftalık kapanış sorusu</strong><p>Bu hafta hangi varsayımı kanıtladım veya çürüttüm?</p></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="roadmap">
+          <div class="section-heading">
+            <div><p class="eyebrow">Görev kontrol listeleri</p><h1>90 günlük yol haritası</h1><p>Her kutu tamamlandığında genel ve proje ilerlemesi otomatik güncellenir.</p></div>
+            <button class="primary-button" type="button" data-view-target="cadence">Haftalık ritmi gör</button>
+          </div>
+          <div class="roadmap" id="roadmapList"></div>
+        </section>
+
+        <section class="view" id="cadence">
+          <div class="section-heading">
+            <div><p class="eyebrow">Kapasite koruması</p><h1>Haftalık çalışma ritmi</h1><p>Bu dağılım bilinçli olarak hafif: toplantılar ve beklenmeyen işler için boşluk bırakır.</p></div>
+          </div>
+          <div class="cadence-grid">
+            <section class="card">
+              <div class="card-heading"><div><h2>Saat tahsisi</h2><p>Haftalık toplam: 17,5 saat</p></div></div>
+              <div class="allocation">
+                <div class="allocation-row"><strong>AVT</strong><div class="allocation-track"><i style="width:100%;--project-color:var(--blue)"></i></div><span>7s</span></div>
+                <div class="allocation-row"><strong>SketchMind</strong><div class="allocation-track"><i style="width:86%;--project-color:var(--teal)"></i></div><span>6s</span></div>
+                <div class="allocation-row"><strong>Vesuliria</strong><div class="allocation-track"><i style="width:29%;--project-color:var(--orange)"></i></div><span>2s</span></div>
+                <div class="allocation-row"><strong>OverfitLab</strong><div class="allocation-track"><i style="width:36%;--project-color:var(--yellow)"></i></div><span>2,5s</span></div>
+              </div>
+              <div class="milestone-list">
+                <div class="milestone"><b>1</b><div><strong>En güçlü zaman AVT'ye</strong><br><span>Kurum pilotu için demo ve karar verici netliği öncelik.</span></div></div>
+                <div class="milestone"><b>2</b><div><strong>SketchMind her hafta gerçek aileyle</strong><br><span>Özellik değil davranış ve ödeme isteği öğrenilir.</span></div></div>
+                <div class="milestone"><b>3</b><div><strong>İletişim, ürün kanıtını büyütür</strong><br><span>Vesuliria ve OverfitLab, ayrı bir ürün projesine dönüşmez.</span></div></div>
+              </div>
+            </section>
+            <section class="card schedule" aria-labelledby="scheduleHeading">
+              <div class="schedule-title"><h2 id="scheduleHeading">Önerilen haftalık bloklar</h2><p>İhtiyaca göre günleri taşı; toplam saatleri koru.</p></div>
+              <table>
+                <thead><tr><th>Gün</th><th>Odak blokları</th><th>Çıktı</th></tr></thead>
+                <tbody>
+                  <tr><td>Pazartesi</td><td><span class="schedule-chip" style="--chip-color:var(--blue);--chip-bg:var(--blue-soft)">AVT · 2s</span></td><td>Demo veya pilot işi</td></tr>
+                  <tr><td>Salı</td><td><span class="schedule-chip" style="--chip-color:var(--teal);--chip-bg:var(--teal-soft)">SketchMind · 2s</span></td><td>MVP / aile görüşmesi</td></tr>
+                  <tr><td>Çarşamba</td><td><span class="schedule-chip" style="--chip-color:var(--blue);--chip-bg:var(--blue-soft)">AVT · 2s</span></td><td>Kurum içgörüsü / takip</td></tr>
+                  <tr><td>Perşembe</td><td><span class="schedule-chip" style="--chip-color:var(--teal);--chip-bg:var(--teal-soft)">SketchMind · 2s</span></td><td>Test bulgusu / iterasyon</td></tr>
+                  <tr><td>Cuma</td><td><span class="schedule-chip" style="--chip-color:var(--blue);--chip-bg:var(--blue-soft)">AVT · 3s</span><span class="schedule-chip" style="--chip-color:var(--yellow);--chip-bg:var(--yellow-soft)">OverfitLab · 1,5s</span></td><td>Demo + teknik içerik</td></tr>
+                  <tr><td>Cumartesi</td><td><span class="schedule-chip" style="--chip-color:var(--teal);--chip-bg:var(--teal-soft)">SketchMind · 2s</span><span class="schedule-chip" style="--chip-color:var(--yellow);--chip-bg:var(--yellow-soft)">OverfitLab · 1s</span></td><td>Aile testi + yayın</td></tr>
+                  <tr><td>Pazar</td><td><span class="schedule-chip" style="--chip-color:var(--orange);--chip-bg:var(--orange-soft)">Vesuliria · 2s</span></td><td>Haftalık ürün iletişimi</td></tr>
+                </tbody>
+              </table>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="notes">
+          <div class="section-heading">
+            <div><p class="eyebrow">Karar günlüğü</p><h1>Notlar ve odak sınırları</h1><p>Öğrenmeyi kaydet; yeni iş açma dürtüsünü görünür kıl.</p></div>
+          </div>
+          <div class="notes-layout">
+            <section class="card">
+              <div class="card-heading"><div><h2>Haftalık karar notu</h2><p>Varsayım, kanıt, sonraki deney, engel.</p></div></div>
+              <textarea id="notes" class="notes-area" placeholder="Örnek: AVT demo görüşmesinde kurumların en çok sorduğu konu …&#10;&#10;Bu haftanın kanıtı:&#10;Sonraki en küçük deney:&#10;Durdur / devam ettir kararı:"></textarea>
+              <p class="save-status" id="saveStatus">Notlar bu cihazdaki tarayıcıda otomatik saklanır.</p>
+            </section>
+            <section class="card">
+              <div class="card-heading"><div><h2>90 günlük koruma çerçevesi</h2><p>Odak, takvimdeki en değerli varlık.</p></div></div>
+              <div class="guardrail-list">
+                <div class="guardrail"><div class="guardrail-icon">✓</div><div><strong>Bicagox: sadece bakım</strong><p>Hata, kritik müşteri ihtiyacı veya zorunlu operasyon dışında yeni özellik yok.</p></div></div>
+                <div class="guardrail"><div class="guardrail-icon">Ⅱ</div><div><strong>Namelith ve yeni girişimler: duraklat</strong><p>Yeni fikirleri not al; zaman ayırma. Faz 3 karar gününe taşı.</p></div></div>
+                <div class="guardrail"><div class="guardrail-icon">↺</div><div><strong>Her hafta kanıt ritüeli</strong><p>Bir kullanıcı, bir kurum veya bir ödeme sinyali olmadan kapsam büyütme.</p></div></div>
+                <div class="guardrail"><div class="guardrail-icon">↯</div><div><strong>Darboğazı seç</strong><p>Bir hafta sarktığında tüm listeyi telafi etmeye çalışma; en yüksek etkili görevi koru.</p></div></div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const plan = {
+      projects: {
+        avt: { name: 'AVT', icon: 'A', hours: '7s', color: 'var(--blue)', goal: 'Demo + kurum pilotu hazırlığı' },
+        sketch: { name: 'SketchMind', icon: 'S', hours: '6s', color: 'var(--teal)', goal: 'MVP + aile testi + ödeme isteği' },
+        ves: { name: 'Vesuliria', icon: 'V', hours: '2s', color: 'var(--orange)', goal: 'Ürün iletişimi' },
+        overfit: { name: 'OverfitLab', icon: 'O', hours: '2,5s', color: 'var(--yellow)', goal: 'Teknik içerik' }
+      },
+      phases: [
+        {
+          id: 1, days: 'Gün 1–30', title: 'Kanıtı kur', summary: 'Dağınık fikri görünür bir demo, test edilebilir MVP ve ilk görüşme ritmine dönüştür.',
+          groups: [
+            { project: 'avt', tasks: ['Demo senaryosunu tek kurum problemi etrafında netleştir.', 'Tıklanabilir / çalışır demo akışını hazırla.', 'Pilot için güvenlik, veri ve entegrasyon varsayımlarını listele.', '10 hedef kurum ve doğru karar verici listesini çıkar.', 'En az 3 keşif görüşmesi yap; ortak itirazları not et.', 'Tek sayfalık pilot önerisi ve başarı ölçütlerini yaz.'] },
+            { project: 'sketch', tasks: ['Aile için tek bir çekirdek kullanım senaryosu seç.', 'MVP akışını çalışır hâle getir; ölçüm olaylarını ekle.', '5 ailelik ilk test grubunu bul ve görüşmeleri planla.', 'Onboarding sırasında takılan noktaları gözlemle.', 'Ödeme isteği görüşme betiğini hazırla.', 'İlk testlerden sonra yalnızca en büyük sürtünmeyi düzelt.'] },
+            { project: 'ves', tasks: ['Vesuliria için tek cümlelik değer önerisini yaz.', 'Web ve sosyal profillerde ürün mesajını tutarlılaştır.', 'Ürünü anlatan 3 temel anlatı / içerik başlığı oluştur.'] },
+            { project: 'overfit', tasks: ['THE SIGNAL, THE LAB ve THE DECISION içerik sütunlarını netleştir.', 'İlk teknik içerik takvimini oluştur.', 'Bir derinlikli teknik yazı veya video taslağı yayınla.'] }
+          ]
+        },
+        {
+          id: 2, days: 'Gün 31–60', title: 'Test et ve daralt', summary: 'İlk ilgi sinyalini gerçek davranış, fiyat tepkisi ve pilot niyetiyle sınamaya başla.',
+          groups: [
+            { project: 'avt', tasks: ['İlgi gösteren kurumlarla demo oturumları yap.', 'Pilot kapsamını, sahipliği ve zaman çizelgesini doğrula.', 'Demo geri bildiriminden yalnızca kritik 2 iyileştirmeyi uygula.', 'Pilot öncesi kontrol listesini (veri, güvenlik, başarı metriği) tamamla.', 'En az bir kurumdan yazılı sonraki adım / pilot niyeti al.'] },
+            { project: 'sketch', tasks: ['Aile testlerini en az 8 haneye genişlet.', 'Her testte tekrar kullanım ve önerme sinyalini kaydet.', '3 fiyat / paket yaklaşımını konuşmalarda test et.', 'Ödeme engellerini ve değer anlarını kategorize et.', 'MVP yol haritasından kanıtsız özellikleri çıkar.'] },
+            { project: 'ves', tasks: ['Gerçek ürün öğrenmelerinden 2 kısa içerik üret.', 'Basit bir demo / iletişim landing akışını güncelle.', 'Haftalık yayın ritmini aksatmadan sürdür.'] },
+            { project: 'overfit', tasks: ['THE SIGNAL için haftalık kısa notu yayınla.', 'THE LAB için bir yapım / teknik süreç paylaş.', 'THE DECISION için bir ürün veya sistem değerlendirmesi yaz.'] }
+          ]
+        },
+        {
+          id: 3, days: 'Gün 61–90', title: 'Karar ver ve sistemleştir', summary: 'Kanıtı karar mekanizmasına çevir: pilotu ilerlet, ürün odağını daralt ve sonraki çeyreği seç.',
+          groups: [
+            { project: 'avt', tasks: ['Pilot için karar toplantısını yürüt veya açık engeli belgeleyip çözüm planı çıkar.', 'Kurum geri bildirimini demo ve teklif anlatısına işle.', 'Pilot başlangıç metriklerini ve haftalık rapor formatını hazırla.', '90 gün sonunda: pilotu büyüt / tekrar konumlandır / durdur kararını kanıtla.'] },
+            { project: 'sketch', tasks: ['Aile testlerinden davranış ve ödeme sinyallerini tek sayfada özetle.', 'En güçlü değer önerisi ve uygun fiyat aralığını seç.', 'Bir sonraki 6 haftanın yalnızca kanıt odaklı MVP planını yaz.', 'Devam / yön değiştir / beklet kararını kullanıcı kanıtıyla al.'] },
+            { project: 'ves', tasks: ['En iyi ürün içgörülerini halka açık anlatıya dönüştür.', 'Tekrar kullanılabilir ürün iletişimi şablonu oluştur.', '90 günlük içerik performansını gözden geçir ve sadeleştir.'] },
+            { project: 'overfit', tasks: ['En iyi iki içeriği temel alarak seri formatını belirle.', 'Teknik içerik üretim süresini ölç ve sürdürülebilir ritmi seç.', 'Sonraki çeyrek için konu havuzunu hazırla; takvimi aşırı büyütme.'] }
+          ]
+        }
+      ]
+    };
+
+    const stateKey = 'vesuliria-command-center-v1';
+    const initialState = { checked: {}, day: 1, notes: '', theme: 'light' };
+    let state = loadState();
+
+    function loadState() {
+      try { return Object.assign({}, initialState, JSON.parse(localStorage.getItem(stateKey) || '{}')); }
+      catch (error) { return Object.assign({}, initialState); }
+    }
+    function saveState() {
+      localStorage.setItem(stateKey, JSON.stringify(state));
+    }
+    function taskId(phaseId, project, index) {
+      return 'p' + phaseId + '-' + project + '-' + index;
+    }
+    function allTasks() {
+      const items = [];
+      plan.phases.forEach(function(phase) {
+        phase.groups.forEach(function(group) {
+          group.tasks.forEach(function(task, index) {
+            items.push({ id: taskId(phase.id, group.project, index), phase: phase.id, project: group.project, text: task });
+          });
+        });
+      });
+      return items;
+    }
+    function projectStats(project) {
+      const tasks = allTasks().filter(function(item) { return item.project === project; });
+      const complete = tasks.filter(function(item) { return state.checked[item.id]; }).length;
+      return { complete: complete, total: tasks.length, percent: tasks.length ? Math.round(complete / tasks.length * 100) : 0 };
+    }
+    function totalStats() {
+      const tasks = allTasks();
+      const complete = tasks.filter(function(item) { return state.checked[item.id]; }).length;
+      return { complete: complete, total: tasks.length, percent: tasks.length ? Math.round(complete / tasks.length * 100) : 0 };
+    }
+    function phaseForDay(day) {
+      if (day <= 30) return 1;
+      if (day <= 60) return 2;
+      return 3;
+    }
+    function phaseMeta(phase) {
+      return phase === 1 ? 'Faz 1 · Kanıtı kur' : phase === 2 ? 'Faz 2 · Test et ve daralt' : 'Faz 3 · Karar ver ve sistemleştir';
+    }
+    function daysToBoundary(day) {
+      return day <= 30 ? 31 - day : day <= 60 ? 61 - day : 91 - day;
+    }
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, function(char) {
+        return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' })[char];
+      });
+    }
+    function renderProjects() {
+      const list = document.getElementById('projectList');
+      list.innerHTML = Object.keys(plan.projects).map(function(id) {
+        const project = plan.projects[id];
+        const stat = projectStats(id);
+        return '<div class="project-row">' +
+          '<div class="project-icon ' + id + '">' + project.icon + '</div>' +
+          '<div><div class="project-name-line"><span>' + project.name + '</span><span>' + stat.complete + '/' + stat.total + ' görev · ' + escapeHtml(project.goal) + '</span></div>' +
+          '<div class="progress-track"><div class="progress-bar" style="width:' + stat.percent + '%;--project-color:' + project.color + '"></div></div></div>' +
+          '<span class="row-hours">' + project.hours + '</span></div>';
+      }).join('');
+    }
+    function renderRoadmap() {
+      const target = document.getElementById('roadmapList');
+      target.innerHTML = plan.phases.map(function(phase) {
+        const groups = phase.groups.map(function(group) {
+          const project = plan.projects[group.project];
+          const taskRows = group.tasks.map(function(task, index) {
+            const id = taskId(phase.id, group.project, index);
+            const checked = Boolean(state.checked[id]);
+            return '<label class="task' + (checked ? ' done' : '') + '" for="' + id + '">' +
+              '<input id="' + id + '" type="checkbox" data-task="' + id + '"' + (checked ? ' checked' : '') + '>' +
+              '<span>' + escapeHtml(task) + '</span></label>';
+          }).join('');
+          return '<section class="task-group"><div class="task-group-title"><span class="small-icon">' + project.icon + '</span>' + project.name + '</div><div class="checklist">' + taskRows + '</div></section>';
+        }).join('');
+        return '<article class="phase-card" data-phase-card="' + phase.id + '"><header class="phase-head"><div class="phase-head-left"><span class="phase-pill">FAZ ' + phase.id + '</span><div><h2>' + phase.title + '</h2><p>' + phase.summary + '</p></div></div><span class="phase-range">' + phase.days + '</span></header><div class="task-groups">' + groups + '</div></article>';
+      }).join('');
+    }
+    function renderStats() {
+      const overall = totalStats();
+      const day = Math.max(1, Math.min(90, Number(state.day) || 1));
+      const phase = phaseForDay(day);
+      const remaining = daysToBoundary(day);
+      document.getElementById('overallProgress').textContent = overall.percent + '%';
+      document.getElementById('tasksSummary').textContent = overall.complete + ' / ' + overall.total + ' görev tamamlandı';
+      document.getElementById('planDay').value = day;
+      document.getElementById('phaseNow').textContent = phaseMeta(phase);
+      document.getElementById('nextPhaseDay').textContent = remaining + 'g';
+      document.getElementById('nextPhaseLabel').textContent = phase === 3 ? '90. gün değerlendirmesine kadar' : 'Faz ' + phase + ' kapanışına kadar';
+      document.querySelectorAll('[data-phase-row]').forEach(function(row) {
+        row.classList.toggle('current', Number(row.dataset.phaseRow) === phase);
+      });
+      document.querySelectorAll('[data-phase-card]').forEach(function(card) {
+        card.style.boxShadow = Number(card.dataset.phaseCard) === phase ? '0 0 0 2px var(--accent-soft), var(--shadow)' : '';
+      });
+    }
+    function renderAll() {
+      renderProjects();
+      renderRoadmap();
+      renderStats();
+      document.getElementById('notes').value = state.notes || '';
+      document.documentElement.dataset.theme = state.theme;
+      document.getElementById('themeButton').setAttribute('aria-label', state.theme === 'dark' ? 'Açık temayı aç' : 'Koyu temayı aç');
+    }
+    function setView(viewId) {
+      document.querySelectorAll('.view').forEach(function(view) { view.classList.toggle('active', view.id === viewId); });
+      document.querySelectorAll('[data-view-target]').forEach(function(button) { button.classList.toggle('active', button.dataset.viewTarget === viewId); });
+      document.getElementById('sidebar').classList.remove('open');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    document.addEventListener('click', function(event) {
+      const viewButton = event.target.closest('[data-view-target]');
+      if (viewButton) setView(viewButton.dataset.viewTarget);
+    });
+    document.addEventListener('change', function(event) {
+      const task = event.target.dataset.task;
+      if (task) {
+        state.checked[task] = event.target.checked;
+        saveState();
+        renderAll();
+      }
+    });
+    document.getElementById('planDay').addEventListener('change', function(event) {
+      state.day = Math.max(1, Math.min(90, Number(event.target.value) || 1));
+      saveState();
+      renderStats();
+    });
+    document.getElementById('notes').addEventListener('input', function(event) {
+      state.notes = event.target.value;
+      saveState();
+      const status = document.getElementById('saveStatus');
+      status.textContent = 'Kaydedildi.';
+      window.clearTimeout(window.noteTimer);
+      window.noteTimer = window.setTimeout(function() { status.textContent = 'Notlar bu cihazdaki tarayıcıda otomatik saklanır.'; }, 1700);
+    });
+    document.getElementById('themeButton').addEventListener('click', function() {
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      saveState();
+      renderAll();
+    });
+    document.getElementById('menuButton').addEventListener('click', function() {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+    document.getElementById('resetButton').addEventListener('click', function() {
+      if (window.confirm('Tamamlanan görevleri, notları ve plan gününü sıfırlamak istiyor musun?')) {
+        state = Object.assign({}, initialState, { theme: state.theme });
+        saveState();
+        renderAll();
+      }
+    });
+    renderAll();
+  </script>
+</body>
+</html>
